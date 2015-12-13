@@ -1,0 +1,14 @@
+---
+- include: bootstrap.yml
+  tags:
+    - cassandra
+    - bootstrap
+
+- include: install.yml
+  tags:
+    - cassandra
+    - install
+
+# - include: configure.yml
+#   tags:
+#     - configure

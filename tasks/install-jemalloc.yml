@@ -1,0 +1,23 @@
+---
+- name: Download jemalloc
+  get_url:
+    uri: https://github.com/jemalloc/jemalloc/releases/download/4.0.4/jemalloc-4.0.4.tar.bz2
+    dest: /tmp/jemalloc.tar.bz2
+
+- name: Extract jemalloc
+  command: tar -xf /tmp/jemalloc.tar.bz2 -C /home/cassandra
+
+- name: Build and install jemalloc
+  shell: ./configure && make && make install
+  args:
+    chdir: /home/cassandra/jemalloc-4.0.4
+
+- name: Set linker configuration
+  template:
+    src: etc/ld.so.conf.d/cassandra.conf
+    dest: /etc/ld.so.conf.d/cassandra.conf
+  register: linker_conf_updated
+
+- name: Update ldconfig
+  command: ldconfig
+  when: linker_conf_updated.changed

@@ -1,0 +1,18 @@
+---
+
+cassandra_versions:
+  "deprecated":
+    version: 2.1.12
+    url: http://download.nextag.com/apache/cassandra/2.1.12/apache-cassandra-2.1.12-bin.tar.gz
+  "stable":
+    version: 2.2.4
+    url: http://www.gtlib.gatech.edu/pub/apache/cassandra/2.2.4/apache-cassandra-2.2.4-bin.tar.gz
+  "experimental":
+    version: 3.0.1
+    url: http://mirror.cc.columbia.edu/pub/software/apache/cassandra/3.0.1/apache-cassandra-3.0.1-bin.tar.gz
+
+cassandra_memlock: unlimited
+cassandra_nofile: 100000
+cassandra_nproc: 32768
+cassandra_as: unlimited
+cassandra_max_map_count: 131072

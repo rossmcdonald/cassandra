@@ -1,0 +1,58 @@
+---
+- name: Install any prerequisites
+  apt: 
+    name: "{{ item }}" 
+    state: present 
+    update_cache: yes 
+    cache_valid_time: 3600
+  with_items:
+    - fail2ban
+
+- name: Create Cassandra group
+  group:
+    name: cassandra 
+    state: present
+
+- name: Create Cassandra user
+  user:
+    name: cassandra
+    groups: cassandra
+    home: /home/cassandra
+    state: present
+    createhome: yes
+
+- name: Set security limits configuration
+  template:
+    src: etc/security/limits.conf
+    dest: /etc/security/limits.conf
+  notify:
+    - reload sysctl
+
+- name: Set sysctl configuration
+  template:
+    src: etc/sysctl.conf
+    dest: /etc/sysctl.conf
+  notify:
+    - reload sysctl
+
+# - name: Disable zone_reclaim_mode
+#   template:
+#     src: proc/sys/vm/zone_reclaim_mode
+#     dest: /proc/sys/vm/zone_reclaim_mode
+#   notify:
+#     - reload sysctl
+
+- name: Disable swap
+  command: swapoff --all
+
+- name: Check for presence of jemalloc shared object
+  stat:
+    path: /usr/local/lib/libjemalloc.so.2
+  register: stat_jemalloc
+
+- include: install-jemalloc.yml
+  when: not stat_jemalloc.stat.exists
+
+# TODO(rossmcdonald): Configure firewall settings for inter-node Cassandra communication
+# TODO(rossmcdonald): Configure optimal SSD settings
+# TODO(rossmcdonald): Allow for optional RAID/disk configuration

@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  author: Ross McDonald
+  description: An Ansible role for installing, configuring, and maintaining Apache Cassandra.
+  license: MIT
+  min_ansible_version: 1.4
+  platforms:
+  - name: Ubuntu
+    versions:
+      - trusty
+  categories:
+    - cloud
+    - clustering
+    - database
+    - database:nosql
+    - monitoring
+dependencies: []
+  

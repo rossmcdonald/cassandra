@@ -1,0 +1,73 @@
+---
+
+- name: Install any prerequisites
+  apt: 
+    name: "{{ item }}" 
+    state: present 
+    update_cache: yes 
+    cache_valid_time: 3600
+  with_items:
+    - openjdk-7-jre-headless
+
+- name: Check for existing installation
+  stat:
+    path: /home/cassandra/apache-cassandra-{{ cassandra_versions.get(cassandra_install_version).version }}/bin/cassandra
+  register: stat_cassandra
+
+- name: Download Cassandra tarball
+  get_url:
+    url: "{{ cassandra_versions.get(cassandra_install_version).url }}"
+    dest: /tmp/cassandra-{{ cassandra_install_version }}.tar.gz
+  when: not stat_cassandra.stat.exists
+
+- name: Extract Cassandra
+  command: tar -xf /tmp/cassandra-{{ cassandra_install_version }}.tar.gz -C /home/cassandra
+  args:
+    creates: /home/cassandra/apache-cassandra-{{ cassandra_versions.get(cassandra_install_version).version }}
+  when: not stat_cassandra.stat.exists
+
+- name: Set permissions on Cassandra home directory
+  command: chown -R cassandra:cassandra /home/cassandra
+
+- name: Activate the Cassandra installation
+  file:
+    src: /home/cassandra/apache-cassandra-{{ cassandra_versions.get(cassandra_install_version).version }}
+    dest: /home/cassandra/current
+    state: link
+
+- name: Check for previous run start script modification
+  stat:
+    path: /home/cassandra/current/.libjemalloc-set
+  register: stat_jemalloc_sub
+
+- name: Update Cassandra start stript with local libjemalloc location
+  command: sed s/\#CASSANDRA_LIBJEMALLOC=/CASSANDRA_LIBJEMALLOC=\\/usr\\/local\\/lib\\/libjemalloc.so/ /home/cassandra/current/bin/cassandra
+  when: not stat_jemalloc_sub.stat.exists
+  
+- name: Touch flag to signal libjemalloc is already set
+  file:
+    path: /home/cassandra/current/.libjemalloc-set
+    state: touch
+  when: not stat_jemalloc_sub.stat.exists
+
+- name: Create service directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: cassandra
+    group: cassandra
+  with_items:
+    - /var/log/cassandra
+
+- name: Install Cassandra init script
+  template:
+    src: etc/init.d/cassandra
+    dest: /etc/init.d/cassandra
+    mode: 0755
+    owner: root
+    group: root
+
+- name: Set Cassandra to start at boot
+  service:
+    name: cassandra
+    enabled: yes
