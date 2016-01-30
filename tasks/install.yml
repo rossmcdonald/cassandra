@@ -47,7 +47,7 @@
   command: sed s/\#CASSANDRA_LIBJEMALLOC=/CASSANDRA_LIBJEMALLOC=\\/usr\\/local\\/lib\\/libjemalloc.so/ /home/cassandra/current/bin/cassandra
   when: not stat_jemalloc_sub.stat.exists
   
-- name: Touch flag to signal libjemalloc is already set
+- name: Touch flag to signal libjemalloc is now set
   file:
     path: /home/cassandra/current/.libjemalloc-installed
     state: touch
@@ -61,10 +61,11 @@
     group: cassandra
   with_items:
     - /var/log/cassandra
+    - /var/lib/cassandra
 
 - name: Install Cassandra init script
   template:
-    src: etc/init.d/cassandra
+    src: etc/init.d/cassandra.j2
     dest: /etc/init.d/cassandra
     mode: 0755
     owner: root

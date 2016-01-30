@@ -17,6 +17,9 @@ cassandra_nproc: 32768
 cassandra_as: unlimited
 cassandra_max_map_count: 131072
 
+cassandra_home_directory: /home/cassandra/current
+cassandra_configuration_directory: /etc/cassandra
+
 # specific jvm_opts to pass to cassandra at runtime
 cassandra_jvm_options:
   - +HeapDumpOnOutOfMemoryError

@@ -1,0 +1,33 @@
+---
+
+- name: Create configuration directory
+  file:
+    path: "{{ cassandra_configuration_directory }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0544
+
+- name: Set Cassandra ini file
+  template:
+    src: etc/cassandra/{{ cassandra_install_version }}/cassandra.in.sh.j2
+    dest: "{{ cassandra_configuration_directory }}/cassandra.in.sh"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Set Cassandra env file
+  template:
+    src: etc/cassandra/{{ cassandra_install_version }}/cassandra-env.sh.j2
+    dest: "{{ cassandra_configuration_directory }}/cassandra-env.sh"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Set Cassandra yaml file
+  template:
+    src: etc/cassandra/{{ cassandra_install_version }}/cassandra.yaml.j2
+    dest: "{{ cassandra_configuration_directory }}/cassandra.yaml"
+    owner: root
+    group: root
+    mode: 0644

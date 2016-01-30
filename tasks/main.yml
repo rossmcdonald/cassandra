@@ -9,6 +9,7 @@
     - cassandra
     - install
 
-# - include: configure.yml
-#   tags:
-#     - configure
+- include: configure.yml
+  tags:
+    - cassandra
+    - configure

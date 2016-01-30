@@ -12,8 +12,9 @@
 # validate the process started correctly
 START_TIMEOUT=2
 
+SCRIPT_ENV="CASSANDRA_INCLUDE={{ cassandra_configuration_directory }}/cassandra.in.sh"
 # Script to execute when starting
-SCRIPT=/home/cassandra/current/bin/cassandra
+SCRIPT="{{ cassandra_home_directory }}/bin/cassandra"
 # Options to pass to the script on startup
 SCRIPT_OPTS="-f"
 
@@ -35,7 +36,7 @@ start() {
 	fi
     fi
     echo 'Starting service...' >&2
-    local CMD="$SCRIPT $SCRIPT_OPTS &> \"$LOGFILE\" & echo \$!"
+    local CMD="$SCRIPT_ENV $SCRIPT $SCRIPT_OPTS &> \"$LOGFILE\" & echo \$!"
     su -c "$CMD" $RUNAS > "$PIDFILE"
     sleep $START_TIMEOUT
     if [[ -f $PIDFILE ]]; then
