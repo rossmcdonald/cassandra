@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ### BEGIN INIT INFO
 # Provides:          cassandra
 # Required-Start:    $local_fs $network $named $time $syslog
@@ -8,75 +8,105 @@
 # Description:       A no-sql database
 ### END INIT INFO
 
-SCRIPT=/home/cassandra/current/bin/cassandra
-RUNAS=cassandra
+# Script sleeps for START_TIMEOUT seconds after calling start to
+# validate the process started correctly
+START_TIMEOUT=2
 
+# Script to execute when starting
+SCRIPT=/home/cassandra/current/bin/cassandra
+# Options to pass to the script on startup
 SCRIPT_OPTS="-f"
 
+# User to run the process under
+RUNAS=cassandra
+
+# PID file for process
 PIDFILE=/var/run/cassandra.pid
+# Where to redirect logging to
 LOGFILE=/var/log/cassandra/cassandra.log
 
 start() {
-  if [ -f /var/run/$PIDNAME ] && kill -0 $(cat /var/run/$PIDNAME); then
-    echo 'Service already running' >&2
-    return 1
-  fi
-  echo 'Starting service…' >&2
-  local CMD="$SCRIPT $SCRIPT_OPTS &> \"$LOGFILE\" & echo \$!"
-  su -c "$CMD" $RUNAS > "$PIDFILE"
-  echo 'Service started' >&2
+    if [[ -f $PIDFILE ]]; then
+	# PIDFILE exists
+	if kill -0 $(cat $PIDFILE); then
+	    # PID up, service running
+	    echo 'Service already running!' >&2
+	    return 0
+	fi
+    fi
+    echo 'Starting service...' >&2
+    local CMD="$SCRIPT $SCRIPT_OPTS &> \"$LOGFILE\" & echo \$!"
+    su -c "$CMD" $RUNAS > "$PIDFILE"
+    sleep $START_TIMEOUT
+    if [[ -f $PIDFILE ]]; then
+	# PIDFILE exists
+	if kill -0 $(cat $PIDFILE); then
+	    # PID up, service running
+	    echo 'Service successfully started.' >&2
+	    return 0
+	fi
+    fi  
+    echo 'Could not start service!' >&2
+    return 0
 }
 
 status() {
-  if [ -f /var/run/$PIDNAME ] && kill -0 $(cat /var/run/$PIDNAME); then
-    echo 'Service running!' >&2
-    return 0
-  else
-    echo 'Service not running!' >&2
+    if [[ -f $PIDFILE ]]; then
+	# PIDFILE exists
+	if ps -p $(cat $PIDFILE) &>/dev/null; then
+	    # PID up, service running
+	    echo 'Service running.' >&2
+	    return 0
+	fi
+    fi
+    echo 'Service not running.' >&2
     return 1
-  fi
 }
 
 stop() {
-  if [ ! -f "$PIDFILE" ] || ! kill -0 $(cat "$PIDFILE"); then
-    echo 'Service not running' >&2
-    return 1
-  fi
-  echo 'Stopping service…' >&2
-  kill -15 $(cat "$PIDFILE") && rm -f "$PIDFILE"
-  echo 'Service stopped' >&2
-}
-
-uninstall() {
-  echo -n "Are you really sure you want to uninstall this service? That cannot be undone. [yes|No] "
-  local SURE
-  read SURE
-  if [ "$SURE" = "yes" ]; then
-    stop
-    rm -f "$PIDFILE"
-    echo "Notice: log file is not be removed: '$LOGFILE'" >&2
-    update-rc.d -f cassandra remove
-    rm -fv "$0"
-  fi
+    if [[ -f $PIDFILE ]]; then
+	# PIDFILE still exists
+	if kill -0 $(cat $PIDFILE); then
+	    # PID still up
+	    echo 'Stopping service...' >&2
+	    kill -15 $(cat $PIDFILE) && rm -f "$PIDFILE"
+	    if [[ "$?" = "0" ]]; then
+		# Successful stop
+		echo 'Service stopped' >&2
+		return 0
+	    else
+		# Unsuccessful stop
+		echo 'Could not stop service!' >&2
+		return 1
+	    fi
+	fi
+    fi
+    echo "Service already stopped."
+    return 0
 }
 
 case "$1" in
-  start)
-    start
-    ;;
-  status)
-    status
-    ;;
-  stop)
-    stop
-    ;;
-  uninstall)
-    uninstall
-    ;;
-  retart)
-    stop
-    start
-    ;;
-  *)
-    echo "Usage: $0 {start|status|stop|restart|uninstall}"
+    start)
+	if [[ "$UID" != "0" ]]; then
+	    echo "Please run as root."
+	    exit 1
+	fi
+	start
+	;;
+    status)
+	status
+	;;
+    stop)
+	if [[ "$UID" != "0" ]]; then
+	    echo "Please run as root."
+	    exit 1
+	fi
+	stop
+	;;
+    retart)
+	stop
+	start
+	;;
+    *)
+	echo "Usage: $0 {start|status|stop|restart}"
 esac
