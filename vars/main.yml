@@ -16,3 +16,27 @@ cassandra_nofile: 100000
 cassandra_nproc: 32768
 cassandra_as: unlimited
 cassandra_max_map_count: 131072
+
+# specific jvm_opts to pass to cassandra at runtime
+cassandra_jvm_options:
+  - +HeapDumpOnOutOfMemoryError
+  # some JVMs will fill up their heap when accessed via JMX, see CASSANDRA-6541
+  - +CMSClassUnloadingEnabled
+  # allows lowering thread priority without being root.  see
+  # http://tech.stolsvik.com/2010/01/linux-java-thread-priorities-workaround.html
+  - ThreadPriorityPolicy=42
+  # enable thread priorities, primarily so we can give periodic tasks
+  # a lower priority to avoid interfering with client workload
+  - +UseThreadPriorities
+  - +UseParNewGC
+  - +UseConcMarkSweepGC
+  - +CMSParallelRemarkEnabled
+  - SurvivorRatio=8
+  - MaxTenuringThreshold=1
+  - CMSInitiatingOccupancyFraction=75
+  - +UseCMSInitiatingOccupancyOnly
+  - +UseTLAB
+  - +PerfDisableSharedMem
+  - CompileCommandFile=$CASSANDRA_CONF/hotspot_compiler
+  - CMSWaitDuration=10000
+  - StringTableSize=1000003 # Larger interned string table (CASSANDRA-6410)
