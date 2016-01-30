@@ -1,7 +1,9 @@
 ---
+
+
 - name: Download jemalloc
   get_url:
-    uri: https://github.com/jemalloc/jemalloc/releases/download/4.0.4/jemalloc-4.0.4.tar.bz2
+    url: https://github.com/jemalloc/jemalloc/releases/download/4.0.4/jemalloc-4.0.4.tar.bz2
     dest: /tmp/jemalloc.tar.bz2
 
 - name: Extract jemalloc
@@ -11,6 +13,7 @@
   shell: ./configure && make && make install
   args:
     chdir: /home/cassandra/jemalloc-4.0.4
+    creates: /usr/local/lib/libjemalloc.so
 
 - name: Set linker configuration
   template:

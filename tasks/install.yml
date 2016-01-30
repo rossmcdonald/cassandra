@@ -35,10 +35,13 @@
     dest: /home/cassandra/current
     state: link
 
-- name: Check for previous run start script modification
+- name: Check for libjemalloc installation
   stat:
-    path: /home/cassandra/current/.libjemalloc-set
+    path: /home/cassandra/current/.libjemalloc-installed
   register: stat_jemalloc_sub
+
+- include: install-jemalloc.yml
+  when: not stat_jemalloc_sub.stat.exists
 
 - name: Update Cassandra start stript with local libjemalloc location
   command: sed s/\#CASSANDRA_LIBJEMALLOC=/CASSANDRA_LIBJEMALLOC=\\/usr\\/local\\/lib\\/libjemalloc.so/ /home/cassandra/current/bin/cassandra
@@ -46,7 +49,7 @@
   
 - name: Touch flag to signal libjemalloc is already set
   file:
-    path: /home/cassandra/current/.libjemalloc-set
+    path: /home/cassandra/current/.libjemalloc-installed
     state: touch
   when: not stat_jemalloc_sub.stat.exists
 
