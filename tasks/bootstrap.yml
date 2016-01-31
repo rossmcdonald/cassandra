@@ -21,6 +21,9 @@
     state: present
     createhome: yes
 
+- name: Enable limits configuration
+  command: sed -i.old 's/# session    required   pam_limits.so/session    required   pam_limits.so/' /etc/pam.d/su
+
 - name: Set security limits configuration
   template:
     src: etc/security/limits.conf
