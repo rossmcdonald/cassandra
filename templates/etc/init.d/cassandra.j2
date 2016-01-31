@@ -10,7 +10,7 @@
 
 # Script sleeps for START_TIMEOUT seconds after calling start to
 # validate the process started correctly
-START_TIMEOUT=2
+START_TIMEOUT=4
 
 SCRIPT_ENV="CASSANDRA_INCLUDE={{ cassandra_configuration_directory }}/cassandra.in.sh"
 # Script to execute when starting
@@ -29,26 +29,25 @@ LOGFILE=/var/log/cassandra/cassandra.log
 start() {
     if [[ -f $PIDFILE ]]; then
 	# PIDFILE exists
-	if kill -0 $(cat $PIDFILE); then
+	if kill -0 $(cat $PIDFILE) &>/dev/null; then
 	    # PID up, service running
-	    echo 'Service already running!' >&2
+	    echo '[OK] Service already running.' >&2
 	    return 0
 	fi
     fi
-    echo 'Starting service...' >&2
-    local CMD="$SCRIPT_ENV $SCRIPT $SCRIPT_OPTS &> \"$LOGFILE\" & echo \$!"
+    local CMD="$SCRIPT_ENV $SCRIPT $SCRIPT_OPTS 1>> \"$LOGFILE\" 2>> \"$LOGFILE\" & echo \$!"
     su -c "$CMD" $RUNAS > "$PIDFILE"
     sleep $START_TIMEOUT
     if [[ -f $PIDFILE ]]; then
 	# PIDFILE exists
-	if kill -0 $(cat $PIDFILE); then
+	if kill -0 $(cat $PIDFILE) &>/dev/null; then
 	    # PID up, service running
-	    echo 'Service successfully started.' >&2
+	    echo '[OK] Service successfully started.' >&2
 	    return 0
 	fi
     fi  
-    echo 'Could not start service!' >&2
-    return 0
+    echo '[ERROR] Could not start service.' >&2
+    return 1
 }
 
 status() {
@@ -56,40 +55,39 @@ status() {
 	# PIDFILE exists
 	if ps -p $(cat $PIDFILE) &>/dev/null; then
 	    # PID up, service running
-	    echo 'Service running.' >&2
+	    echo '[OK] Service running.' >&2
 	    return 0
 	fi
     fi
-    echo 'Service not running.' >&2
+    echo '[ERROR] Service not running.' >&2
     return 1
 }
 
 stop() {
     if [[ -f $PIDFILE ]]; then
 	# PIDFILE still exists
-	if kill -0 $(cat $PIDFILE); then
+	if kill -0 $(cat $PIDFILE) &>/dev/null; then
 	    # PID still up
-	    echo 'Stopping service...' >&2
-	    kill -15 $(cat $PIDFILE) && rm -f "$PIDFILE"
+	    kill -15 $(cat $PIDFILE) &>/dev/null && rm -f "$PIDFILE" &>/dev/null
 	    if [[ "$?" = "0" ]]; then
 		# Successful stop
-		echo 'Service stopped' >&2
+		echo '[OK] Service stopped.' >&2
 		return 0
 	    else
 		# Unsuccessful stop
-		echo 'Could not stop service!' >&2
+		echo '[ERROR] Could not stop service.' >&2
 		return 1
 	    fi
 	fi
     fi
-    echo "Service already stopped."
+    echo "[OK] Service already stopped."
     return 0
 }
 
 case "$1" in
     start)
 	if [[ "$UID" != "0" ]]; then
-	    echo "Please run as root."
+	    echo "[ERROR] Permission denied."
 	    exit 1
 	fi
 	start
@@ -99,12 +97,12 @@ case "$1" in
 	;;
     stop)
 	if [[ "$UID" != "0" ]]; then
-	    echo "Please run as root."
+	    echo "[ERROR] Permission denied."
 	    exit 1
 	fi
 	stop
 	;;
-    retart)
+    restart)
 	stop
 	start
 	;;

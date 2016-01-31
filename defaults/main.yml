@@ -8,9 +8,9 @@ cassandra_install_version: stable
 ####
 
 # JVM heap size on startup
-cassandra_max_heap_size: 4G
+cassandra_max_heap_size: 1G
 # size of the young generation (higher = longer GC pauses; shorter = more expensive GC)
-cassandra_heap_newsize: 800M 
+cassandra_heap_newsize: 200M 
 # Set this to control the amount of arenas per-thread in glibc
 cassandra_malloc_arena_max: 4 
 cassandra_per_thread_stack_size: 256k
@@ -127,7 +127,7 @@ cassandra_partitioner: org.apache.cassandra.dht.Murmur3Partitioner
 
 cassandra_data_file_directories:
   - /var/lib/cassandra/data
-cassandra_commitlog_directory: /var/lib/cassandra/commitlog
+cassandra_commitlog_directory: /var/lib/cassandra/data/commitlog
 
 # policy for data disk failures:
 # die: shut down gossip and client transports and kill the JVM for any fs errors or
@@ -231,7 +231,7 @@ cassandra_counter_cache_save_period: 7200
 
 # saved caches
 # If not set, the default directory is $CASSANDRA_HOME/data/saved_caches.
-cassandra_saved_caches_directory: /var/lib/cassandra/saved_caches
+cassandra_saved_caches_directory: /var/lib/cassandra/data/saved_caches
 
 # commitlog_sync may be either "periodic" or "batch." 
 # 
@@ -315,7 +315,7 @@ cassandra_index_summary_resize_interval_in_minutes: 60
 # buffers. Enable this to avoid sudden dirty buffer flushing from
 # impacting read latencies. Almost always a good idea on SSDs; not
 # necessarily on platters.
-cassandra_trickle_fsync: yes
+cassandra_trickle_fsync: true
 cassandra_trickle_fsync_interval_in_kb: 10240
 
 # TCP port, for commands and data

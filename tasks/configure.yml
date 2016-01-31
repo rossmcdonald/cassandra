@@ -1,12 +1,15 @@
 ---
 
-- name: Create configuration directory
+- name: Create configuration and trigger directory
   file:
-    path: "{{ cassandra_configuration_directory }}"
+    path: "{{ item }}"
     state: directory
     owner: root
     group: root
-    mode: 0544
+    mode: 0755
+  with_items:
+    - "{{ cassandra_configuration_directory }}"
+    - "{{ cassandra_configuration_directory }}/triggers"
 
 - name: Set Cassandra configuration files
   template:
@@ -21,3 +24,4 @@
     - cassandra.yaml
     - logback.xml
     - logback-tools.xml
+

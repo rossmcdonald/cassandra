@@ -68,9 +68,9 @@ disk_failure_policy: {{ cassandra_disk_failure_policy }}
 
 commit_failure_policy: {{ cassandra_commit_failure_policy }}
 
-key_cache_size_in_mb: {{ cassandra_key_cache_size_in_mb }}
+key_cache_size_in_mb: {{ cassandra_key_cache_size_in_mb|default("", true) }}
 
-key_cache_save_period: {{ cassanra_key_cache_save_period }}
+key_cache_save_period: {{ cassandra_key_cache_save_period }}
 
 # Number of keys from the key cache to save
 # Disabled by default, meaning all keys are going to be saved
@@ -84,7 +84,7 @@ row_cache_save_period: {{ cassandra_row_cache_save_period }}
 # Specify 0 (which is the default), meaning all keys are going to be saved
 # row_cache_keys_to_save: 100
 
-counter_cache_size_in_mb: {{ cassandra_counter_cache_size_in_mb }}
+counter_cache_size_in_mb: {{ cassandra_counter_cache_size_in_mb|default("", true) }}
 counter_cache_save_period: {{ cassandra_counter_cache_save_period }}
 saved_caches_directory: {{ cassandra_saved_caches_directory }}
 commitlog_sync: {{ cassandra_commitlog_sync }}
@@ -108,7 +108,7 @@ seed_provider:
     # multiple nodes!
     - class_name: {{ cassandra_seed_provider_class }}
       parameters:
-          - seeds: "{% groups['cassandra_seeds']|join(',') %}"
+          - seeds: "{% for host in groups['cassandra_seeds'] %}{{ hostvars[host].ansible_default_ipv4['address'] }}{% if not loop.last %},{% endif %}{% endfor %}"
 
 concurrent_reads: {{ cassandra_concurrent_reads }}
 concurrent_writes: {{ cassandra_concurrent_writes }}
@@ -162,7 +162,7 @@ memtable_flush_writers: {{ cassandra_memtable_flush_writers }}
 memtable_flush_writers: {{ ansible_processor_cores }}
 {% endif %}
 
-index_summary_capacity_in_mb: {{ cassandra_index_summary_capacity_in_mb }}
+index_summary_capacity_in_mb: {{ cassandra_index_summary_capacity_in_mb|default("", true) }}
 index_summary_resize_interval_in_minutes: {{ cassandra_index_summary_resize_interval_in_minutes }}
 
 # Whether to, when doing sequential writing, fsync() at intervals in
@@ -170,7 +170,7 @@ index_summary_resize_interval_in_minutes: {{ cassandra_index_summary_resize_inte
 # buffers. Enable this to avoid sudden dirty buffer flushing from
 # impacting read latencies. Almost always a good idea on SSDs; not
 # necessarily on platters.
-trickle_fsync: {{ cassandra_trickle_fsync }}
+trickle_fsync: {{ cassandra_trickle_fsync|lower }}
 trickle_fsync_interval_in_kb: {{ cassandra_trickle_fsync_interval_in_kb }}
 
 # TCP port, for commands and data
@@ -199,7 +199,7 @@ ssl_storage_port: {{ cassandra_ssl_storage_port }}
 # you can specify which should be chosen using listen_interface_prefer_ipv6. If false the first ipv4
 # address will be used. If true the first ipv6 address will be used. Defaults to false preferring
 # ipv4. If there is only one address it will be selected regardless of ipv4/ipv6.
-listen_address: {{ ['ansible_all_ipv4_addresses'] | last }}
+listen_address: {{ ansible_default_ipv4['address'] }}
 # listen_interface: eth0
 # listen_interface_prefer_ipv6: false
 
@@ -238,7 +238,7 @@ start_rpc: {{ cassandra_start_rpc|lower }}
 # you can specify which should be chosen using rpc_interface_prefer_ipv6. If false the first ipv4
 # address will be used. If true the first ipv6 address will be used. Defaults to false preferring
 # ipv4. If there is only one address it will be selected regardless of ipv4/ipv6.
-rpc_address: {{ ['ansible_all_ipv4_addresses'] | last }}
+rpc_address: {{ ansible_default_ipv4['address'] }}
 # rpc_interface: eth1
 # rpc_interface_prefer_ipv6: false
 
@@ -352,7 +352,7 @@ compaction_large_partition_warning_threshold_mb: {{ cassandra_compaction_large_p
 sstable_preemptive_open_interval_in_mb: {{ cassandra_sstable_preemptive_open_interval_in_mb }}
 
 stream_throughput_outbound_megabits_per_sec: {{ cassandra_stream_throughput_outbound_megabits_per_sec }}
-inter_dc_stream_throughput_outbound_megabits_per_sec: {{ cassandra_inter_dc_stream_throughput_outbound_megabits_per_sec }}
+inter_dc_stream_throughput_outbound_megabits_per_sec: {{ cassandra_inter_dc_stream_throughput_outbound_megabits_per_sec|default("", true) }}
 
 read_request_timeout_in_ms: {{ cassandra_read_request_timeout_in_ms }}
 range_request_timeout_in_ms: {{ cassandra_range_request_timeout_in_ms }}
@@ -430,16 +430,16 @@ request_scheduler_id: {{ cassandra_request_scheduler_id }}
 # http://download.oracle.com/javase/6/docs/technotes/guides/security/jsse/JSSERefGuide.html#CreateKeystore
 #
 server_encryption_options:
-    internode_encryption: {{ cassandra_internode_encryption }}
-    keystore: {{ cassandra_keystore }}
-    keystore_password: {{ cassandra_keystore_password }}
-    truststore: {{ cassandra_truststore }}
-    truststore_password: {{ cassandra_truststore_password }}
-    protocol: {{ cassandra_protocol }}
-    algorithm: {{ cassandra_algorithm }}
-    store_type: {{ cassandra_store_type }}
-    cipher_suites: [{{ cassandra_cipher_suites|join(',') }}]
-    require_client_auth: {{ cassandra_require_client_auth|lower }}
+    internode_encryption: {{ cassandra_server_internode_encryption }}
+    keystore: {{ cassandra_server_keystore }}
+    keystore_password: {{ cassandra_server_keystore_password }}
+    truststore: {{ cassandra_server_truststore }}
+    truststore_password: {{ cassandra_server_truststore_password }}
+    protocol: {{ cassandra_server_protocol }}
+    algorithm: {{ cassandra_server_algorithm }}
+    store_type: {{ cassandra_server_store_type }}
+    cipher_suites: [{{ cassandra_server_cipher_suites|join(',') }}]
+    require_client_auth: {{ cassandra_server_require_client_auth|lower }}
 
 # enable or disable client/server encryption.
 client_encryption_options:
