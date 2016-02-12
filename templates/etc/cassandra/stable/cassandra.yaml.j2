@@ -108,7 +108,7 @@ seed_provider:
     # multiple nodes!
     - class_name: {{ cassandra_seed_provider_class }}
       parameters:
-          - seeds: "{% for host in groups['cassandra_seeds'] %}{{ hostvars[host].ansible_default_ipv4['address'] }}{% if not loop.last %},{% endif %}{% endfor %}"
+          - seeds: "{% for host in groups['cassandra_seeds'] %}{% if loop.index0 < 3 %}{{ hostvars[host].ansible_hostname }}{% if not loop.last or loop.index0 != 2 %},{% endif %}{% endif %}{% endfor %}"
 
 concurrent_reads: {{ cassandra_concurrent_reads }}
 concurrent_writes: {{ cassandra_concurrent_writes }}
@@ -199,7 +199,9 @@ ssl_storage_port: {{ cassandra_ssl_storage_port }}
 # you can specify which should be chosen using listen_interface_prefer_ipv6. If false the first ipv4
 # address will be used. If true the first ipv6 address will be used. Defaults to false preferring
 # ipv4. If there is only one address it will be selected regardless of ipv4/ipv6.
-listen_address: {{ ansible_default_ipv4['address'] }}
+# listen_address: {{ ansible_default_ipv4['address'] }}
+listen_address: {{ ansible_hostname }}
+
 # listen_interface: eth0
 # listen_interface_prefer_ipv6: false
 
@@ -238,7 +240,9 @@ start_rpc: {{ cassandra_start_rpc|lower }}
 # you can specify which should be chosen using rpc_interface_prefer_ipv6. If false the first ipv4
 # address will be used. If true the first ipv6 address will be used. Defaults to false preferring
 # ipv4. If there is only one address it will be selected regardless of ipv4/ipv6.
-rpc_address: {{ ansible_default_ipv4['address'] }}
+# rpc_address: {{ ansible_default_ipv4['address'] }}
+rpc_address: {{ ansible_hostname }}
+
 # rpc_interface: eth1
 # rpc_interface_prefer_ipv6: false
 

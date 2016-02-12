@@ -15,7 +15,7 @@ cassandra_heap_newsize: 200M
 cassandra_malloc_arena_max: 4 
 cassandra_per_thread_stack_size: 256k
 # set to no to enable remote jmx access (not recommended)
-cassandra_local_jmx: "yes"
+cassandra_local_jmx: yes
 cassandra_jmx_port: 7199
 # disabling assertions will give a modest performance boost
 cassandra_enable_assertions: yes
@@ -318,13 +318,13 @@ cassandra_index_summary_resize_interval_in_minutes: 60
 cassandra_trickle_fsync: true
 cassandra_trickle_fsync_interval_in_kb: 10240
 
-# TCP port, for commands and data
-# For security reasons, you should not expose this port to the internet.  Firewall it if needed.
+# TCP port, for commands and data For security reasons, you should not
+# expose this port to the internet.  Firewall it if needed.
 cassandra_storage_port: 7000
 
 # SSL port, for encrypted communication.  Unused unless enabled in
-# encryption_options
-# For security reasons, you should not expose this port to the internet.  Firewall it if needed.
+# encryption_options For security reasons, you should not expose this
+# port to the internet.  Firewall it if needed.
 cassandra_ssl_storage_port: 7001
 
 # Internode authentication backend, implementing IInternodeAuthenticator;

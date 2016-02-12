@@ -13,3 +13,8 @@
   tags:
     - cassandra
     - configure
+
+- name: Start Cassandra service
+  service:
+    name: cassandra
+    state: started

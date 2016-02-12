@@ -1,4 +1,5 @@
 ---
+
 - name: Install any prerequisites
   apt: 
     name: "{{ item }}" 
@@ -20,6 +21,14 @@
     home: /home/cassandra
     state: present
     createhome: yes
+
+- name: Set hosts configuration
+  template:
+    src: etc/hosts.j2
+    dest: /etc/hosts
+    owner: root
+    group: root
+    mode: 0644
 
 - name: Enable limits configuration
   command: sed -i.old 's/# session    required   pam_limits.so/session    required   pam_limits.so/' /etc/pam.d/su
@@ -56,6 +65,14 @@
 - include: install-jemalloc.yml
   when: not stat_jemalloc.stat.exists
 
-# TODO(rossmcdonald): Configure firewall settings for inter-node Cassandra communication
+# - name: Configure firewall for unencrypted Cassandra communication
+#   ufw:
+#     rule: allow
+#     from_ip: "{{ item.0 }}"
+#     to_port: "{{ item.1 }}"
+#   with_nested:
+#     - groups[cassandra]
+#     - [ cassandra_storage_port, cassandra_jmx_port ]
+
 # TODO(rossmcdonald): Configure optimal SSD settings
 # TODO(rossmcdonald): Allow for optional RAID/disk configuration
