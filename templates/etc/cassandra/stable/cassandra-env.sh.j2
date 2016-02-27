@@ -255,7 +255,11 @@ JVM_OPTS="$JVM_OPTS -Djava.net.preferIPv4Stack=true"
 # with authentication and/or ssl enabled. See https://wiki.apache.org/cassandra/JmxSecurity 
 #
 if [ "x$LOCAL_JMX" = "x" ]; then
-    LOCAL_JMX={{ cassandra_local_jmx }}
+{% if cassandra_local_jmx %}
+    LOCAL_JMX=yes
+{% else %}
+    LOCAL_JMX=no
+{% endif %}
 fi
 
 if [ "$LOCAL_JMX" = "yes" ]; then
