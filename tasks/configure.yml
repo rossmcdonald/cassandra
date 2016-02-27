@@ -25,3 +25,12 @@
     - logback.xml
     - logback-tools.xml
 
+- name: Set Cassandra rsyslog configuration
+  template:
+    src: etc/rsyslog.d/cassandra.conf.j2
+    dest: /etc/rsyslog.d/cassandra.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart rsyslog

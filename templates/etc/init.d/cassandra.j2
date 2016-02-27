@@ -25,6 +25,7 @@ RUNAS=cassandra
 PIDFILE=/var/run/cassandra.pid
 # Where to redirect logging to
 LOGFILE=/var/log/cassandra/cassandra.log
+ERRLOGFILE=/var/log/cassandra/cassandra.err
 
 start() {
     if [[ -f $PIDFILE ]]; then
@@ -35,7 +36,7 @@ start() {
 	    return 0
 	fi
     fi
-    local CMD="$SCRIPT_ENV $SCRIPT $SCRIPT_OPTS 1>> \"$LOGFILE\" 2>> \"$LOGFILE\" & echo \$!"
+    local CMD="$SCRIPT_ENV $SCRIPT $SCRIPT_OPTS 1>> \"$LOGFILE\" 2>> \"$ERRLOGFILE\" & echo \$!"
     su -c "$CMD" $RUNAS > "$PIDFILE"
     sleep $START_TIMEOUT
     if [[ -f $PIDFILE ]]; then

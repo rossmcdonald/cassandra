@@ -2,3 +2,8 @@
 
 - name: reload sysctl
   command: sysctl -p
+
+- name: restart rsyslog
+  service:
+    name: rsyslog
+    state: restarted
