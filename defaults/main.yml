@@ -1,7 +1,7 @@
 ---
 
 # Version of Cassandra to install. See vars/main.yml for version information.
-cassandra_install_version: stable
+cassandra_install_version: 2.2.4
 
 ####
 # cassandra-env configuration variables

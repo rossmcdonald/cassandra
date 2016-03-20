@@ -59,6 +59,7 @@
     state: directory
     owner: cassandra
     group: cassandra
+    mode: 0755
   with_items:
     - /var/log/cassandra
     - /var/lib/cassandra

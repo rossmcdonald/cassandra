@@ -1,13 +1,13 @@
 ---
 
 cassandra_versions:
-  "deprecated":
+  "2.1.12":
     version: 2.1.12
     url: http://download.nextag.com/apache/cassandra/2.1.12/apache-cassandra-2.1.12-bin.tar.gz
-  "stable":
+  "2.2.4":
     version: 2.2.4
     url: http://www.gtlib.gatech.edu/pub/apache/cassandra/2.2.4/apache-cassandra-2.2.4-bin.tar.gz
-  "experimental":
+  "3.0.1":
     version: 3.0.1
     url: http://mirror.cc.columbia.edu/pub/software/apache/cassandra/3.0.1/apache-cassandra-3.0.1-bin.tar.gz
 
